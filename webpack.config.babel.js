@@ -10,15 +10,9 @@ module.exports = (env, argv) => {
 
   return {
     context: resolve(__dirname, 'src'),
-    entry: './index.js',
-    output: {
-      path: resolve(__dirname, 'dist'),
-      filename: 'bundle-[hash].js'
-    },
-    devServer: {
-      contentBase: 'src',
-      hot: true
-    },
+    entry: ['babel-polyfill', './index.js'],
+    output: { path: resolve(__dirname, 'dist'), filename: 'bundle-[hash].js' },
+    devServer: { contentBase: 'src', hot: true },
     module: {
       rules: [
         {
@@ -42,27 +36,20 @@ module.exports = (env, argv) => {
         {
           test: /\.js$/,
           exclude: /node_modules/,
-          loader: 'babel-loader'
+          loader: 'babel-loader',
+          query: {
+            presets: ['env', 'stage-0']
+          }
         },
-        {
-          test: /\.exec\.js$/,
-          use: ['script-loader']
-        },
+        { test: /\.exec\.js$/, use: ['script-loader'] },
         {
           test: /\.(gif|png|jpe?g|svg)$/i,
           use: [
             {
               loader: 'file-loader',
-              options: {
-                name: '[path][name]-[hash].[ext]'
-              }
+              options: { name: '[path][name]-[hash].[ext]' }
             },
-            {
-              loader: 'image-webpack-loader',
-              options: {
-                bypassOnDebug: true
-              }
-            }
+            { loader: 'image-webpack-loader', options: { bypassOnDebug: true } }
           ]
         },
         { test: /\.pug$/, loader: 'pug-loader' }
@@ -83,7 +70,10 @@ module.exports = (env, argv) => {
           keep_fnames: true
         }
       }),
-      new ExtractTextPlugin({ filename: 'styles-[hash].css', disable: isDev })
+      new ExtractTextPlugin({
+        filename: 'styles-[hash].css',
+        disable: isDev
+      })
     ]
   };
 };
